@@ -59,7 +59,7 @@ def find_road_number(image: np.ndarray) -> int:
                 road_blocked[i] = True
                 break
         # print(road_color)
-    print(road_blocked)
+    # print(road_blocked)
 
     # ищем машину
     blue_low = (210 / 2, 0.7 * pix, 0.9 * pix)
@@ -74,7 +74,7 @@ def find_road_number(image: np.ndarray) -> int:
             if car_area[j][center_arr[i]] == 255:
                 car_lane = i
                 break
-    print(car_lane)
+    # print(car_lane)
 
     if not road_blocked[car_lane]:
         return -1

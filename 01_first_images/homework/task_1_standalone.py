@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+from time import time
 from collections import deque
-
+np.set_printoptions(threshold=np.inf)
 
 def simplify(image, block_side):
     """
@@ -90,23 +92,58 @@ def find_path(matrix, start, end):
 
     return path
 
-def find_way_from_maze(image: np.ndarray) -> tuple:
+def plot_maze_path(image: np.ndarray, coords: tuple) -> np.ndarray:
     """
-    Найти путь через лабиринт.
+    Нарисовать путь через лабиринт на изображении.
+    Вспомогательная функция.
 
     :param image: изображение лабиринта
-    :return: координаты пути из лабиринта в виде (x, y), где x и y - это массивы координат
+    :param coords: координаты пути через лабиринт типа (x, y) где x и y - массивы координат точек
+    :return img_wpath: исходное изображение с отрисованными координатами
     """
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    block_side = 16  # Size of one maze block (which contains upper and left wall and free space)
-    res_image = simplify(image, block_side)
+    if image.ndim != 3:
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
-    start = find_opening_on_side(res_image, 1)
-    end = find_opening_on_side(res_image, 3)
+    img_wpath = image.copy()
+    if coords:
+        x, y = coords
+        img_wpath[x, y, :] = [0, 0, 255]
 
-    path = find_path(res_image, start, end)
-    for point in path:
-        res_image[point[0]][point[1]] = 150
-    coords = [point[0] * 8 for point in path], [point[1] * 8 for point in path]
+    return img_wpath
 
-    return coords
+image = cv2.imread('task_1/img_01.png')
+image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+s = time()
+
+block_side = 16 # Size of one maze block (which contains upper and left wall and free space)
+res_image = simplify(image, block_side)
+
+# print(res_image)
+height, width = res_image.shape[0:2]
+
+start = find_opening_on_side(res_image, 1)
+end = find_opening_on_side(res_image, 3)
+
+path = find_path(res_image, start, end)
+for point in path:
+    res_image[point[0]][point[1]] = 150
+path_t = [point[0]*8 for point in path], [point[1]*8 for point in path]
+
+# SOME BULLSHITTERY
+# res_image = cv2.cvtColor(res_image, cv2.COLOR_GRAY2BGR)
+# cv2.floodFill(res_image, None, (0, 0), (0, 255, 0), loDiff=(0, 0, 0, 0), upDiff=(0, 0, 0, 0))
+# cv2.floodFill(res_image, None, (height-1, width-1), (255, 0, 0), loDiff=(0, 0, 0, 0), upDiff=(0, 0, 0, 0))
+
+e = time()
+print(e - s)
+
+fig, m_axs = plt.subplots(1, 2, figsize = (12, 9))
+ax1, ax2 = m_axs
+
+ax1.set_title('Исходная картинка', fontsize=15)
+ax1.imshow(image)
+ax2.set_title('Как я это вижу', fontsize=15)
+ax2.imshow(plot_maze_path(image, (path_t)))
+
+plt.show()

@@ -11,10 +11,22 @@ def rotate(image, point: tuple, angle: float) -> np.ndarray:
     :param angle: угол поворота
     :return: повернутное изображение
     """
-    # Ваш код
-    pass
+    height, width = image.shape[0:2]
 
-    return image
+    rot_mat = cv2.getRotationMatrix2D(point, angle, scale=1)
+
+    cos = abs(rot_mat[0, 0])
+    sin = abs(rot_mat[0, 1])
+
+    new_width = int((height * sin) + (width * cos))
+    new_height = int((height * cos) + (width * sin))
+
+    rot_mat[0, 2] = 0
+    rot_mat[1, 2] = width * sin
+
+    res_image = cv2.warpAffine(image, rot_mat, (new_width, new_height))
+
+    return res_image
 
 
 def apply_warpAffine(image, points1, points2) -> np.ndarray:
@@ -27,7 +39,6 @@ def apply_warpAffine(image, points1, points2) -> np.ndarray:
     :param points2:
     :return: преобразованное изображение
     """
-    # Ваш код
-    pass
+
 
     return image
